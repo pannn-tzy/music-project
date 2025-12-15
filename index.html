@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TzyMusic, by panńn_tzy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif}
+body{background:linear-gradient(180deg,#020617,#0f172a);color:#fff}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:rgba(2,6,23,.95);padding:20px;backdrop-filter:blur(10px)}
+.sidebar h2{color:#22c55e;margin-bottom:25px}
+.sidebar a{display:block;color:#cbd5f5;text-decoration:none;margin:14px 0;cursor:pointer}
+.sidebar a:hover{color:#22c55e}
+.main{margin-left:220px;padding:24px;padding-bottom:160px}
+.header h1{font-size:30px;margin-bottom:20px}
+.sidebar-info{margin-bottom:24px}
+.info-card{background:rgba(2,6,23,.9);padding:14px;border-radius:16px;margin-bottom:14px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.info-card a{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;text-decoration:none;font-weight:bold;font-size:18px;transition:.3s;position:relative;}
+.info-card a.instagram{background:#e1306c;}
+.info-card a.whatsapp{background:#25d366;}
+.info-card a.telegram{background:#0088cc;}
+.info-card a:hover{transform:scale(1.2);box-shadow:0 4px 12px rgba(0,0,0,.4);}
+.info-card a[title]:hover::after{
+  content: attr(title);
+  position: absolute;
+  bottom: 50px;
+  background: #222;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.request-card{background:rgba(2,6,23,.9);padding:14px;border-radius:16px;margin-bottom:14px}
+.request-card h3{color:#22c55e;margin-bottom:10px}
+.request-card p{font-size:13px;color:#94a3b8;margin-bottom:8px;}
+.request-card input{width:100%;padding:8px;border-radius:8px;border:none;margin-bottom:8px;background:#1e293b;color:#fff}
+.request-card button{width:100%;padding:8px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:bold}
+.request-card small{display:block;margin-top:6px;color:#94a3b8}
+.playlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:22px}
+.card{background:rgba(2,6,23,.9);border-radius:16px;padding:14px;cursor:pointer;transition:.3s;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.card:hover{transform:translateY(-6px) scale(1.03);background:#020617}
+.card img{width:100%;border-radius:12px;margin-bottom:10px}
+.card h4{font-size:16px}
+.card p{font-size:13px;color:#94a3b8}
+.player{position:fixed;left:220px;right:0;bottom:0;background:rgba(2,6,23,.95);backdrop-filter:blur(12px);border-top:1px solid #1e293b;padding:14px 22px}
+.player-top{display:flex;align-items:center;justify-content:space-between}
+.song-info{display:flex;align-items:center;gap:14px}
+.song-info img{width:64px;height:64px;border-radius:50%}
+.song-text{animation:fadeUp .6s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.controls{display:flex;align-items:center;gap:12px}
+.controls button{background:#22c55e;border:none;color:#022c22;font-size:20px;width:46px;height:46px;border-radius:50%;cursor:pointer}
+.controls button:hover{background:#4ade80}
+.download{color:#22c55e;text-decoration:none;font-size:22px;cursor:pointer}
+.time-row{display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin:6px 2px}
+.progress{width:100%;height:5px;background:#1e293b;border-radius:10px;cursor:pointer}
+.progress-bar{height:100%;width:0%;background:#22c55e;border-radius:10px}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.rotate.playing{animation:spin 6s linear infinite}
+.footer{margin-left:220px;background:#020617;border-top:1px solid #1e293b;padding:26px 20px}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+.footer h3{color:#22c55e}
+.footer p{font-size:13px;color:#94a3b8}
+.footer-center a{margin:0 10px;color:#cbd5f5;text-decoration:none;font-size:14px}
+.footer-center a:hover{color:#22c55e}
+.footer-right{font-size:13px;color:#64748b}
+
+/* NowBar Animasi */
+#nowbar{
+  position:fixed;
+  top:-70px;
+  left:220px;
+  right:0;
+  height:50px;
+  background:#22c55e;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  box-shadow:0 4px 6px rgba(0,0,0,.2);
+  border-radius:0 0 12px 12px;
+  z-index:2000;
+  transition: top 0.4s ease, opacity 0.4s ease;
+  opacity:0;
+}
+#nowbar.show{
+  top:10px;
+  opacity:1;
+}
+#nowbar button{
+  background:#fff;
+  color:#22c55e;
+  border:none;
+  padding:5px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+@media(max-width:768px){
+  .sidebar{display:none}.main{margin-left:0}.player{left:0}.footer{margin-left:0}#nowbar{left:0;right:0}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+<h2>MyMusic</h2>
+<a href="#">Home</a>
+<a href="#">Playlist</a>
+<a href="#">Favorite</a>
+</div>
+
+<div class="main">
+<div class="header"><h1>TzyMusic</h1></div>
+
+<!-- Sidebar Info + Request -->
+<div class="sidebar-info">
+  <!-- Sosmed Elegan -->
+  <div class="info-card">
+    <a href="https://pannjs.biz.id/" target="_blank" class="website" title="Instagram">I</a>
+    <a href="https://wa.me/123456789" target="_blank" class="whatsapp" title="WhatsApp">W</a>
+    <a href="https://t.me/panntzys" target="_blank" class="telegram" title="Telegram">T</a>
+  </div>
+
+  <!-- Request Lagu ke Telegram -->
+  <div class="request-card">
+    <h3>Request Lagu</h3>
+    <p>Masukkan <strong>nama lagu</strong> dan <strong>penyanyi</strong>. Contoh: "Shape of You - Ed Sheeran"</p>
+    <input type="text" id="requestInput" placeholder="Nama Lagu atau Artist">
+    <button onclick="submitRequest()">Submit</button>
+    <small id="requestMsg"></small>
+  </div>
+</div>
+
+<div class="playlist" id="playlist"></div>
+</div>
+
+<!-- Player -->
+<div class="player">
+  <div class="player-top">
+    <div class="song-info">
+      <img id="cover" class="rotate" src="" />
+      <div class="song-text">
+        <div id="title">Pilih Lagu</div>
+        <small id="artist"></small>
+      </div>
+    </div>
+    <div class="controls">
+      <button onclick="prevSong()">⏮</button>
+      <button onclick="togglePlay()" id="playBtn">▶</button>
+      <button onclick="nextSong()">⏭</button>
+      <button class="download" onclick="tryDownload()">⬇</button>
+    </div>
+  </div>
+  <div class="time-row"><span id="currentTime">0:00</span><span id="duration">0:00</span></div>
+  <div class="progress" onclick="seek(event)">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <audio id="audio"></audio>
+</div>
+
+<!-- NowBar Notifikasi -->
+<div id="nowbar">
+  <span id="notifText">Notif</span>
+  <button id="nowPlayBtn">▶ Putar</button>
+</div>
+
+<footer class="footer">
+<div class="footer-inner">
+  <div class="footer-left">
+    <h3>MyMusic</h3>
+    <p>Elegant playlist web • Built with ❤️</p>
+  </div>
+  <div class="footer-center">
+    <a href="#">Info</a>
+    <a href="#">Playlist</a>
+    <a href="#">Request Lagu</a>
+  </div>
+  <div class="footer-right">
+    <span>© 2025 MyMusic</span>
+  </div>
+</div>
+</footer>
+
+<script>
+// ===== Playlist =====
+const musicList = [
+  { title:'Night Drive', artist:'Chill Beat', src:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', cover:'https://picsum.photos/300?1' },
+  { title:'Ocean Wave', artist:'Lo-Fi', src:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', cover:'https://picsum.photos/300?2' },
+  { title:'Midnight City', artist:'Synth Pop', src:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', cover:'https://picsum.photos/300?3' }
+];
+const playlistEl=document.getElementById('playlist');
+const audio=document.getElementById('audio');
+const titleEl=document.getElementById('title');
+const artistEl=document.getElementById('artist');
+const coverEl=document.getElementById('cover');
+const playBtn=document.getElementById('playBtn');
+const progressBar=document.getElementById('progressBar');
+const currentTimeEl=document.getElementById('currentTime');
+const durationEl=document.getElementById('duration');
+let currentIndex=-1,isPlaying=false;
+function renderPlaylist(){playlistEl.innerHTML='';musicList.forEach((m,i)=>{const card=document.createElement('div');card.className='card';card.innerHTML=`<img src="${m.cover}"><h4>${m.title}</h4><p>${m.artist}</p>`;card.onclick=()=>playSong(i);playlistEl.appendChild(card);})}
+renderPlaylist();
+function playSong(i){const m=musicList[i];currentIndex=i;titleEl.innerText=m.title;artistEl.innerText=m.artist;coverEl.src=m.cover;audio.src=m.src;audio.play();isPlaying=true;playBtn.innerText='⏸';coverEl.classList.add('playing')}
+function togglePlay(){if(!audio.src)return;if(isPlaying){audio.pause();playBtn.innerText='▶';coverEl.classList.remove('playing')}else{audio.play();playBtn.innerText='⏸';coverEl.classList.add('playing')}isPlaying=!isPlaying}
+function nextSong(){if(currentIndex<musicList.length-1)playSong(currentIndex+1)}
+function prevSong(){if(currentIndex>0)playSong(currentIndex-1)}
+function downloadCurrent(){if(currentIndex<0)return alert('Putar lagu dulu');const m=musicList[currentIndex];const a=document.createElement('a');a.href=m.src;a.download=`${m.title} - ${m.artist}.mp3`;document.body.appendChild(a);a.click();document.body.removeChild(a)}
+audio.ontimeupdate=()=>{if(!audio.duration)return;progressBar.style.width=(audio.currentTime/audio.duration)*100+'%';currentTimeEl.innerText=formatTime(audio.currentTime);}
+audio.onloadedmetadata=()=>{durationEl.innerText=formatTime(audio.duration);}
+function seek(e){const w=e.currentTarget.clientWidth;audio.currentTime=(e.offsetX/w)*audio.duration;}
+function formatTime(t){const m=Math.floor(t/60);const s=Math.floor(t%60).toString().padStart(2,'0');return `${m}:${s}`}
+
+// ===== NowBar =====
+const nowbar = document.getElementById('nowbar');
+const notifText = document.getElementById('notifText');
+const nowPlayBtn = document.getElementById('nowPlayBtn');
+function showNowBar(message, autoHide=true, duration=4000){notifText.innerText = message;nowbar.classList.add('show');if(autoHide){setTimeout(()=>{ hideNowBar() }, duration);}}
+function hideNowBar(){nowbar.classList.remove('show');}
+nowPlayBtn.addEventListener('click', ()=>{if(currentIndex<0) playSong(0); else if(!isPlaying) togglePlay(); hideNowBar();});
+function tryDownload(){if(currentIndex<0){showNowBar('Putar lagu dulu!');} else {downloadCurrent();}}
+
+// ===== Request Lagu ke Telegram =====
+const BOT_TOKEN = "8274767277:AAEqdCcSXBpgaWpZPRe7P_SidITYU194P6U"; 
+const OWNER_ID = "8031744294";   
+function submitRequest(){
+  const input = document.getElementById('requestInput');
+  const msg = document.getElementById('requestMsg');
+  if(input.value.trim() === ''){ msg.innerText = 'Masukkan nama lagu atau artist dulu!'; return; }
+  const requestText = `ada yang Request Lagu Nih dari Web:\n${input.value.trim()}`;
+  fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:OWNER_ID,text:requestText})
+  }).then(res=>res.json()).then(data=>{
+    if(data.ok){
+      msg.innerText = `Request diterima: "${input.value.trim()}"`; 
+      showNowBar(`Request "${input.value.trim()}" terkirim!`);
+      input.value='';
+    } else{
+      msg.innerText=`Gagal mengirim request`;
+      showNowBar(`Gagal mengirim request!`);
+    }
+  }).catch(err=>{
+    msg.innerText=`Error: tidak bisa mengirim request`; 
+    showNowBar(`Error: tidak bisa mengirim request`);
+    console.error(err);
+  });
+}
+</script>
+</body>
+</html>
